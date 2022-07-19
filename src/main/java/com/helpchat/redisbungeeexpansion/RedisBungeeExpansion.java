@@ -125,7 +125,7 @@ public final class RedisBungeeExpansion extends PlaceholderExpansion implements 
         }
 
         servers.put(identifier, 0);
-        return null;
+        return "0";
 
     }
 
