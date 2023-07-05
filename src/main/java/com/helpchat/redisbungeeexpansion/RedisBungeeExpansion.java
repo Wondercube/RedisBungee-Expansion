@@ -1,19 +1,5 @@
 package com.helpchat.redisbungeeexpansion;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
-import me.clip.placeholderapi.expansion.Cacheable;
-import me.clip.placeholderapi.expansion.Configurable;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.expansion.Taskable;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.util.Arrays;
@@ -21,6 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
+import me.clip.placeholderapi.expansion.Cacheable;
+import me.clip.placeholderapi.expansion.Configurable;
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Taskable;
 
 public final class RedisBungeeExpansion extends PlaceholderExpansion implements PluginMessageListener, Taskable, Cacheable, Configurable {
 
@@ -106,21 +106,19 @@ public final class RedisBungeeExpansion extends PlaceholderExpansion implements 
         if (identifier.equalsIgnoreCase("total") || identifier.equalsIgnoreCase("all")) {
             return String.valueOf(total);
         }
+        int reqTotal = 0;
+        for (String serverName : identifier.split("_")) {
+	        if (!servers.containsKey(serverName)) {
+	            servers.put(serverName, 0);
+	        }
 
-        if (servers.isEmpty()) {
-            servers.put(identifier, 0);
-            return "0";
+        	for (Map.Entry<String, Integer> entry : servers.entrySet()) {
+        		if (entry.getKey().equalsIgnoreCase(serverName)) {
+        			reqTotal += entry.getValue();
+        		}
+        	}
         }
-
-        for (Map.Entry<String, Integer> entry : servers.entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(identifier)) {
-                return String.valueOf(entry.getValue());
-            }
-        }
-
-        servers.put(identifier, 0);
-        return "0";
-
+    	return String.valueOf(reqTotal);
     }
 
 
